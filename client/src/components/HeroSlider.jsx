@@ -31,7 +31,8 @@ const SliderData = () => {
     };
 
     return (
-        <section className="relative w-full min-h-screen flex flex-col items-center justify-center text-white overflow-hidden py-10 md:py-20">
+        /* შეცვლილია: items-center justify-start (მობილურზე ზემოდან დაიწყოს) და pt-24 (ზედა დაშორება) */
+        <section className="relative w-full min-h-screen flex flex-col items-center justify-start md:justify-center text-white overflow-hidden pt-24 md:pt-0 md:py-20">
             <div className="absolute inset-0 bg-cover bg-center z-0" style={{ backgroundImage: "url('/637899879_1906730589969515_5149657727831417922_n.jpg')" }}>
                 <div className="absolute inset-0 bg-black/50"></div>
             </div>
@@ -43,14 +44,13 @@ const SliderData = () => {
                     {t('Find Your Perfect Car')}
                 </h1>
 
-                {/* მთავარი კონტეინერი - p-1.5 მობილურზე, p-2 დიდზე */}
+                {/* მთავარი კონტეინერი */}
                 <div className="bg-white rounded-2xl md:rounded-full p-1.5 md:p-2 flex flex-col md:flex-row items-stretch shadow-2xl gap-1 md:gap-2">
                     
                     <div className="flex-1 px-3 md:px-4 border-b md:border-b-0 md:border-r border-gray-100">
                         <select
                             value={selection.brand}
                             onChange={(e) => setSelection({ ...selection, brand: e.target.value, model: "" })}
-                            // py-2.5 მობილურზე (უფრო დაბალია)
                             className={`w-full bg-transparent text-gray-700 outline-none py-2.5 md:py-4 cursor-pointer transition-all ${
                                 isKA ? "text-[12px] md:text-[13px]" : "text-sm md:text-base"
                             }`}
@@ -93,7 +93,6 @@ const SliderData = () => {
 
                     <button
                         onClick={handleSearch}
-                        // py-3 მობილურზე (უფრო კომპაქტურია)
                         className={`bg-[rgb(124,104,67)] hover:bg-[rgb(95,81,56)] text-white rounded-xl md:rounded-full flex items-center justify-center gap-2 transition-all font-bold active:scale-95 whitespace-nowrap ${
                             isKA ? "text-[12px] md:text-[13px] px-5 py-3 md:px-6 md:py-4" : "text-sm md:text-base px-6 py-3 md:px-8 md:py-4"
                         }`}
