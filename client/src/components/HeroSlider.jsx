@@ -31,8 +31,8 @@ const SliderData = () => {
     };
 
     return (
-        /* pt-40 მობილურისთვის — კიდევ ცოტათი ქვემოთ ჩამოწეული */
-        <section className="relative w-full min-h-screen flex flex-col items-center justify-start md:justify-center text-white overflow-hidden pt-40 md:pt-0 md:py-20">
+        /* pt-52 მობილურისთვის — მნიშვნელოვნად ჩამოწეული პოზიცია */
+        <section className="relative w-full min-h-screen flex flex-col items-center justify-start md:justify-center text-white overflow-hidden pt-52 md:pt-0 md:py-20">
             <div className="absolute inset-0 bg-cover bg-center z-0" style={{ backgroundImage: "url('/637899879_1906730589969515_5149657727831417922_n.jpg')" }}>
                 <div className="absolute inset-0 bg-black/50"></div>
             </div>
