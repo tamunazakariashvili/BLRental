@@ -1,0 +1,186 @@
+
+// Authentication
+const User = require('../models/user.model');
+const catchAsync = require('../utils/catchAsync');
+const jwt = require('jsonwebtoken');
+const AppError = require('../utils/appError');
+const sendEmail = require('../utils/email');
+
+const signToken = (user) => {
+    return jwt.sign({ id: user._id, role: user.role },
+        process.env.JWT_SECRET,
+        { expiresIn: process.env.JWT_EXPIRE })
+}
+
+const createSendToken = (user, statusCode, res) => {
+    const token = signToken(user)
+    res.cookie('lt', token, {
+        // cookie ს სიცოცხლის ვადა 
+        maxAge: process.env.COOKIE_EXPIRES * 24 * 60 * 60 * 1000,
+        // 
+        secure: true,
+        // javascript ბრაუზერში  ვერ წაიკითხავს cookie ს 
+        httpOnly: true,
+        // 
+        sameSite: 'none',
+        domain: '.georgiarentalcar.com'
+    })
+    // ვაბრუნებთ სტატუსის კოდს და ახალ მომხმარებელს Json ფორმატში 
+    res.status(statusCode).json({
+        status: 'sucess',
+        user
+    })
+}
+const signUp = catchAsync(async (req, res, next) => {
+    const { fullname, email, password } = req.body;
+
+  
+    const newUser = await User.create({
+        fullname,
+        email,
+        password
+    });
+
+    //  ვუგზავნით ტოკენს, რომ რეგისტრაციისთანავე დალოგინდეს
+    createSendToken(newUser, 201, res);
+
+   
+});
+
+// login 
+const login = catchAsync(async (req, res, next) => {
+    // ვიღებთ წვდომას ემაილზე და პაროლზე 
+    const { email, password } = req.body
+
+    // ვეძებთ ემაილს user კოლექციიდან 
+    const user = await User.findOne({ email });
+    // თუ არ გვაქვს user ვაბრუნებთ ერორის მმართელ ფუნქციას 
+    if (!user) {
+        return next(new AppError('your email or password is incorrect', 404))
+    }
+    if (!user.isVerified) {
+        return next(new AppError('Please verify your email before logging in', 401));
+    }
+    // ვადარებთ შეყვანილ პაროლს (password) და ბაზაში შენახულ ჰეშირებულ პაროლს (user.password)
+    // comparePassword არის user მოდელში განსაზღვრული მეთოდი, რომელიც bcrypt-ს ანალოგიურად ადარებს
+    const iscorrect = await user.comparePassword(password, user.password);
+    // თუ პაროლი არ ემთხვევა, ვაბრუნებთ შეცდომას
+    if (!iscorrect) {
+        return next(new AppError('your email or password is incorrect', 404))
+    }
+    // თუ email და password სწორია, ვაბრუნებთ წარმატებულ პასუხს (200)
+    // response-ში ვაგზავნით iscorrect ცვლადს და user ობიექტს
+    createSendToken(user, 200, res)
+
+})
+const logout = (req, res) => {
+    res.cookie('lt', '', {
+        maxAge: 0,
+        httpOnly: true,
+        secure: true,
+        sameSite: 'none',
+        domain: '.georgiarentalcar.com',
+        path: '/'
+    });
+
+    res.status(200).json({
+        status: 'success',
+        message: 'Logged out successfully'
+    });
+};
+const updateUser = catchAsync(async (req, res, next) => {
+    if (req.user.role !== 'admin') {
+        return next(new AppError('You are not allowed to change users', 403));
+    }
+
+    const userId = req.params.id; // URL პარამეტრიდან ვიღებთ
+    const { fullname, email, role } = req.body;
+
+    const updateData = { fullname, email, role };
+
+    const user = await User.findByIdAndUpdate(userId, updateData, { new: true });
+
+    res.status(200).json({
+        status: 'success',
+        user
+    });
+});
+
+
+const deleteUser = catchAsync(async (req, res, next) => {
+    // მხოლოდ admin-ებს აქვთ უფლება
+    if (req.user.role !== 'admin') {
+        return next(new AppError('You are not allowed to delete users', 403));
+    }
+
+    const userId = req.params.id;
+
+    const user = await User.findByIdAndDelete(userId);
+
+    if (!user) {
+        return next(new AppError('User not found', 404));
+    }
+
+    res.status(200).json({
+        status: 'success',
+        message: 'User deleted successfully'
+    });
+});
+
+
+const getAllUsers = catchAsync(async (req, res) => {
+    const users = await User.find();
+    res.status(200).json({
+        status: 'success',
+        users
+    })
+});
+
+const changePassword = catchAsync(async (req, res, next) => {
+    const { currentPassword, newPassword } = req.body;
+
+    if (!currentPassword || !newPassword) {
+        return next(new AppError("Please provide current and new password", 400));
+    }
+
+    // ვიღებთ user-ს DB-დან (რადგან password select:false ხშირად აქვთ)
+    const user = await User.findById(req.user.id).select("+password");
+
+    if (!user) {
+        return next(new AppError("User not found", 404));
+    }
+
+    // ვამოწმებთ ძველ პაროლს
+    const isCorrect = await user.comparePassword(currentPassword, user.password);
+
+    if (!isCorrect) {
+        return next(new AppError("Current password is incorrect", 401));
+    }
+
+    // ვანახლებთ პაროლს
+    user.password = newPassword;
+    await user.save(); // აქ ავტომატურად დაიჰეშება pre('save')-ით
+
+    res.status(200).json({
+        status: "success",
+        message: "Password updated successfully"
+    });
+});
+
+const updateMe = catchAsync(async (req, res, next) => {
+    // მხოლოდ საკუთარი მონაცემები
+    const { fullname, email } = req.body;
+
+    // არ აძლევს user-ს role-ს შეცვლის საშუალებას
+    const updateData = { fullname, email };
+
+    const user = await User.findByIdAndUpdate(req.user.id, updateData, { new: true });
+
+    res.status(200).json({
+        status: 'success',
+        user
+    });
+});
+
+// ექსპორტს ვუკეთებთ ფუნქციებსს 
+module.exports = { signUp, login, logout, updateUser, updateMe, getAllUsers, signToken, changePassword, deleteUser, };
