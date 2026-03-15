@@ -33,7 +33,7 @@ const ContactUs = () => {
                     <div
                         className="absolute inset-0 bg-cover bg-center grayscale"
                         style={{
-                            backgroundImage: "url('https://images.unsplash.com/photo-1493238792000-8113da705763?q=80&w=2070&auto=format&fit=crop')",
+                            backgroundImage: "url('/imgi_7_photo-1493238792000-8113da705763.jpg')",
                             clipPath: window.innerWidth > 768 ? "polygon(15% 0, 100% 0, 100% 100%, 0% 100%)" : "none"
                         }}
                     >
