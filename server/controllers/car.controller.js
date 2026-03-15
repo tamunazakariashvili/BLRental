@@ -33,7 +33,7 @@ const addCar = catchAsync(async (req, res, next) => {
     const result = await imageUpload('cars', images);
     const imagesUrls = result.map(r => r.secure_url);
 
-    
+
     const newCar = await Car.create({
         brand,
         model,
@@ -50,7 +50,7 @@ const addCar = catchAsync(async (req, res, next) => {
         doors,
         seats,
         pasenger,
-        location: formattedLocation, 
+        location: formattedLocation,
         description,
         phone,
         features: parsedFeatures
@@ -69,8 +69,8 @@ const getAllCar = catchAsync(async (req, res, next) => {
         carType,
         brand,
         model,
-        minYear,   
-        maxYear,   
+        minYear,
+        maxYear,
         minPrice,
         maxPrice,
     } = req.query;
@@ -86,7 +86,7 @@ const getAllCar = catchAsync(async (req, res, next) => {
         if (maxYear && !isNaN(maxYear)) queryObj.year.$lte = Number(maxYear);
     }
 
- 
+
     if (minPrice || maxPrice) {
         queryObj.pricePerDay = {};
         if (minPrice && !isNaN(minPrice)) queryObj.pricePerDay.$gte = Number(minPrice);
@@ -96,7 +96,7 @@ const getAllCar = catchAsync(async (req, res, next) => {
 
     let query = Car.find(queryObj);
 
- 
+
     if (sorted === 'price-asc') query = query.sort({ pricePerDay: 1 });
     if (sorted === 'price-desc') query = query.sort({ pricePerDay: -1 });
     if (sorted === 'year-asc') query = query.sort({ year: 1 });
@@ -105,7 +105,7 @@ const getAllCar = catchAsync(async (req, res, next) => {
 
     const cars = await query;
 
-    
+
     res.status(200).json({
         status: 'success',
         results: cars.length,
@@ -143,6 +143,10 @@ const updateCar = catchAsync(async (req, res, next) => {
     //  სურათების დამუშავება
     let imagesUrls = car.images;
     if (req.files && req.files.length > 0) {
+        // ძველი სურათების წაშლა Cloudinary-დან
+        if (car.images && car.images.length > 0) {
+            await imageDelete(car.images);
+        }
         const images = req.files.map(file => file.path.replace(/\\/g, '/'));
         const result = await imageUpload('cars', images);
         imagesUrls = result.map(r => r.secure_url);
@@ -165,7 +169,7 @@ const updateCar = catchAsync(async (req, res, next) => {
         carType,
         engine, transmission, condition, mileage, fueltype,
         countryoforigin, doors, seats, pasenger,
-        location: formattedLocation, 
+        location: formattedLocation,
         description, phone,
         features: parsedFeatures
     };
@@ -179,15 +183,26 @@ const updateCar = catchAsync(async (req, res, next) => {
         car: updatedCar
     });
 });
+
+
+
 const deleteCar = catchAsync(async (req, res, next) => {
-    const car = await Car.findByIdAndDelete(req.params.id);
-    if (!car) return next(AppError('Car not found', 404));
+    const car = await Car.findById(req.params.id);
+    if (!car) return next(new AppError('Car not found', 404));
+
+    // Cloudinary-დან სურათების წაშლა
+    if (car.images && car.images.length > 0) {
+        await imageDelete(car.images);
+    }
+
+    await Car.findByIdAndDelete(req.params.id);
+
     res.status(200).json({
         status: 'success',
         message: 'Car deleted',
         car
-    })
-})
+    });
+});
 
 
 module.exports = { addCar, getAllCar, getCar, updateCar, deleteCar }
