@@ -3,8 +3,8 @@
 const Car = require("../models/car.model");
 const AppError = require("../utils/appError");
 const catchAsync = require("../utils/catchAsync");
-const { imageDelete } = require("../utils/image");
-const imageUpload = require("../utils/image");
+const { imageDelete, imageUpload} = require("../utils/image");
+
 
 
 const addCar = catchAsync(async (req, res, next) => {
