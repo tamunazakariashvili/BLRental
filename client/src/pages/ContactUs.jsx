@@ -106,7 +106,7 @@ const ContactUs = () => {
                         </div>
 
                         <form className="grid grid-cols-1 md:grid-cols-2 gap-x-12 gap-y-10 text-left relative z-10" onSubmit={(e) => e.preventDefault()}>
-                            <FloatingInput label={t("Your Name")} type="text" placeholder={t("John Doe")} />
+                            <FloatingInput label={t("Your Name")} type="text" placeholder={t("george")} />
                             <FloatingInput label={t("Email Address")} type="email" placeholder="example@gmail.com" />
                             <div className="md:col-span-2">
                                 <FloatingInput label={t("Subject")} type="text" placeholder={t("How can we help?")} />
