@@ -3,7 +3,7 @@ const Car = require("../models/car.model");
 const User = require("../models/user.model");
 const AppError = require("../utils/appError");
 const catchAsync = require("../utils/catchAsync");
-const imageUpload = require("../utils/image");
+const { imageUpload, imageDelete, } = require("../utils/image");
 
 const createBooking = catchAsync(async (req, res, next) => {
     const { carId, startDate, endDate, phone, pickupLocation } = req.body;
@@ -66,7 +66,7 @@ const updateExpiredBookings = async () => {
 const getAllBookings = catchAsync(async (req, res, next) => {
     await updateExpiredBookings();
     const bookings = await Booking.find()
-        .populate('user', 'fullname email') 
+        .populate('user', 'fullname email')
         .populate('car', 'brand model year pricePerDay');
 
     res.status(200).json({
@@ -108,11 +108,18 @@ const updateBooking = catchAsync(async (req, res, next) => {
 });
 
 const deleteBooking = catchAsync(async (req, res, next) => {
-    const deletedBooking = await Booking.findByIdAndDelete(req.params.id);
+    const deletedBooking = await Booking.findById(req.params.id);
 
     if (!deletedBooking) {
         return next(new AppError('Booking not found', 404));
     }
+
+    // Cloudinary-დან მართვის მოწმობის წაშლა
+    if (deletedBooking.driverLicenseImg) {
+        await imageDelete([deletedBooking.driverLicenseImg]);
+    }
+
+    await Booking.findByIdAndDelete(req.params.id);
 
     res.status(200).json({
         status: 'success',
