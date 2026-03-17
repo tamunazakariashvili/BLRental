@@ -180,5 +180,4 @@ const CarFilter = () => {
         </div>
     );
 };
-
 export default CarFilter;
