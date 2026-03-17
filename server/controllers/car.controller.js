@@ -3,7 +3,7 @@
 const Car = require("../models/car.model");
 const AppError = require("../utils/appError");
 const catchAsync = require("../utils/catchAsync");
-const { imageDelete, imageUpload} = require("../utils/image");
+const { imageDelete, imageUpload } = require("../utils/image");
 
 
 
@@ -14,6 +14,9 @@ const addCar = catchAsync(async (req, res, next) => {
         condition, mileage, fueltype, countryoforigin, doors, seats,
         pasenger, location, description, phone, features
     } = req.body;
+
+    if (brand) brand = brand.toUpperCase();
+    if (model) model = model.toUpperCase();
 
     // 2. ლოკაციის გასწორება (ტექსტიდან ობიექტში გადაყვანა)
     // თუ ფრონტიდან მოდის უბრალოდ "tbilisi", ჩვენ ის უნდა ჩავსვათ address ველში
@@ -78,8 +81,8 @@ const getAllCar = catchAsync(async (req, res, next) => {
     } = req.query;
 
     let queryObj = {};
-    if (brand) queryObj.brand = brand;
-    if (model) queryObj.model = model;
+    if (brand) queryObj.brand = { $regex: new RegExp(`^${brand}$`, 'i') };
+    if (model) queryObj.model = { $regex: new RegExp(`^${model}$`, 'i') };
     if (carType) queryObj.carType = carType;
 
     if ((minYear && !isNaN(minYear)) || (maxYear && !isNaN(maxYear))) {
@@ -135,6 +138,8 @@ const updateCar = catchAsync(async (req, res, next) => {
         condition, mileage, fueltype, countryoforigin, doors, seats,
         pasenger, location, description, phone, features
     } = req.body;
+    if (brand) brand = brand.toUpperCase();
+    if (model) model = model.toUpperCase();
 
     // 1. Features-ის დაპარსვა
     let parsedFeatures = car.features;

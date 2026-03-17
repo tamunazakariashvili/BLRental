@@ -1,9 +1,9 @@
 import { useEffect, useState } from "react";
 import { useCars } from "../contexts/CarsContext";
-import { useLanguage } from "../hooks/useLanguage"; // ჰუკის იმპორტი
+import { useLanguage } from "../hooks/useLanguage";
 
 const CarFilter = () => {
-    const { t } = useLanguage(); // თარგმანის ფუნქცია
+    const { t } = useLanguage();
     const { cars, getCars } = useCars();
 
     const [filters, setFilters] = useState({
@@ -15,7 +15,7 @@ const CarFilter = () => {
         minPrice: "",
         maxPrice: "",
     });
-
+    
     const [filteredCarTypes, setFilteredCarTypes] = useState([]);
     const [years, setYears] = useState([]);
     const [prices, setPrices] = useState([]);
@@ -24,7 +24,7 @@ const CarFilter = () => {
     useEffect(() => {
         if (filters.brand) {
             const types = cars
-                .filter(car => car.brand === filters.brand)
+                .filter(car => car.brand.toUpperCase() === filters.brand.toUpperCase())  // ✅ შეიცვალა
                 .map(car => car.carType);
             setFilteredCarTypes([...new Set(types)]);
         } else {
@@ -71,7 +71,7 @@ const CarFilter = () => {
                         const brand = e.target.value;
                         setFilters({ ...filters, brand, model: "" });
                         const models = cars
-                            .filter(car => car.brand === brand)
+                            .filter(car => car.brand.toUpperCase() === brand.toUpperCase())  // ✅ შეიცვალა
                             .map(car => car.model);
                         setFilteredModels([...new Set(models)]);
                     }}
