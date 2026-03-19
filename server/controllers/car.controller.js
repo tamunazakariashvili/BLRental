@@ -133,7 +133,7 @@ const updateCar = catchAsync(async (req, res, next) => {
     let car = await Car.findById(req.params.id);
     if (!car) return next(new AppError('Car not found', 404));
 
-    const {
+    let {
         brand, model, year, pricePerDay, carType, engine, transmission,
         condition, mileage, fueltype, countryoforigin, doors, seats,
         pasenger, location, description, phone, features

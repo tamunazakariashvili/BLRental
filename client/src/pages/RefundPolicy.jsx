@@ -19,9 +19,7 @@ const RefundPolicy = () => {
             title: "Documentation & No-Show",
             content: "If a rental is refused because the driver fails to present a valid license/passport, or if the customer does not show up within 3 hours of the scheduled time without notice, the booking will be marked as non-refundable."
         },
-       
     ];
-
     return (
         <div className="bg-white min-h-screen font-sans text-[#1a1a1a]">
             <section className="pt-32 pb-16 px-6 relative border-b border-white/5" style={{ backgroundColor: darkBg }}>
