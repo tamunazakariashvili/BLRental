@@ -8,9 +8,9 @@ const Categories = () => {
     const accentColor = "rgb(254, 154, 0)";
 
     const categoryData = [
-        { title: t('Coupe'), subtitle: t('High Performance'), img: '/coupee.jpg', type: 'Coupe' },
+        { title: t('Coupe'), subtitle: t('High Performance'), img: '/coupee.jpg', type: 'coupe' },
         { title: t('Convertible'), subtitle: t('Open Top Freedom'), img: '/convertiblee.jpg', type: 'convertible' },
-        { title: t('Sedan'), subtitle: t('Business Class'), img: '/sedann.jpg', type: 'Sedan' },
+        { title: t('Sedan'), subtitle: t('Business Class'), img: '/sedann.jpg', type: 'sedan' },
         { title: t('SUV'), subtitle: t('Family Travel'), img: '/suvcarr.jpg', type: 'suv' },
     ];
 

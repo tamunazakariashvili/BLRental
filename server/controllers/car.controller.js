@@ -17,7 +17,7 @@ const addCar = catchAsync(async (req, res, next) => {
 
     if (brand) brand = brand.trim().toUpperCase();
     if (model) model = model.trim().toUpperCase();
-
+    if (carType) carType = carType.trim().toLowerCase();
     // 2. ლოკაციის გასწორება (ტექსტიდან ობიექტში გადაყვანა)
     // თუ ფრონტიდან მოდის უბრალოდ "tbilisi", ჩვენ ის უნდა ჩავსვათ address ველში
     let formattedLocation;
@@ -140,6 +140,7 @@ const updateCar = catchAsync(async (req, res, next) => {
     } = req.body;
     if (brand) brand = brand.trim().toUpperCase();
     if (model) model = model.trim().toUpperCase();
+    if (carType) carType = carType.trim().toLowerCase();
 
     // 1. Features-ის დაპარსვა
     let parsedFeatures = car.features;
