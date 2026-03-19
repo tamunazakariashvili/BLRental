@@ -12,10 +12,6 @@ const PrivacyPolicy = () => {
             content: "We collect only essential information required for car rental services, such as your full name and email address. This data is used exclusively to manage your bookings and provide a personalized experience. We do not store sensitive identity documents like passports or driver's licenses on our servers."
         },
         {
-            title: "Secure Payment Infrastructure",
-            content: "Financial security is our priority. All transactions are processed via Bank of Georgia's secure iPay gateway. BLRental does not capture, store, or have access to your credit card numbers or CVV codes. Encryption and payment data handling are managed entirely at the banking level."
-        },
-        {
             title: "Authentication & Security",
             content: "To protect your account, we implement industry-standard security measures. Passwords are encrypted using advanced hashing (Bcrypt). For users choosing Google or GitHub authentication, we only store unique provider identifiers to maintain secure sessions without accessing your external account data."
         },

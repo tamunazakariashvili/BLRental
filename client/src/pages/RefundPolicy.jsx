@@ -19,10 +19,7 @@ const RefundPolicy = () => {
             title: "Documentation & No-Show",
             content: "If a rental is refused because the driver fails to present a valid license/passport, or if the customer does not show up within 3 hours of the scheduled time without notice, the booking will be marked as non-refundable."
         },
-        {
-            title: "Refund Execution",
-            content: "Once a cancellation is confirmed by our support team, the refund will be initiated to your original payment method. Depending on your bank's policies, it may take 3 to 5 business days for the funds to appear in your account."
-        }
+       
     ];
 
     return (
