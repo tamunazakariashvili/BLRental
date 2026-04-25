@@ -34,7 +34,7 @@ const createSendToken = (user, statusCode, res) => {
 const signUp = catchAsync(async (req, res, next) => {
     const { fullname, email, password } = req.body;
 
-  
+
     const newUser = await User.create({
         fullname,
         email,
@@ -44,7 +44,7 @@ const signUp = catchAsync(async (req, res, next) => {
     //  ვუგზავნით ტოკენს, რომ რეგისტრაციისთანავე დალოგინდეს
     createSendToken(newUser, 201, res);
 
-   
+
 });
 
 // login 
@@ -57,6 +57,13 @@ const login = catchAsync(async (req, res, next) => {
     // თუ არ გვაქვს user ვაბრუნებთ ერორის მმართელ ფუნქციას 
     if (!user) {
         return next(new AppError('your email or password is incorrect', 404))
+    }
+    //  მთავარი შემოწმება: თუ მომხმარებელი OAuth-ითაა (მაგ: Google)
+    if (user.oauthProvider) {
+        return next(new AppError(
+            `You are registered via ${user.oauthProvider}. Please use the corresponding button to sign in`,
+            400
+        ));
     }
     if (!user.isVerified) {
         return next(new AppError('Please verify your email before logging in', 401));
