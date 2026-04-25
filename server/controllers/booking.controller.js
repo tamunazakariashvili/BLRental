@@ -3,6 +3,7 @@ const Car = require("../models/car.model");
 const User = require("../models/user.model");
 const AppError = require("../utils/appError");
 const catchAsync = require("../utils/catchAsync");
+const sendEmail = require("../utils/email");
 const { imageUpload, imageDelete, } = require("../utils/image");
 
 const createBooking = catchAsync(async (req, res, next) => {
@@ -44,6 +45,35 @@ const createBooking = catchAsync(async (req, res, next) => {
         totalPrice
     });
 
+    // --- იმეილის გაგზავნის ლოგიკა შენთან (ადმინთან) ---
+    const recipientEmail = "tamunazakariashvili@gmail.com"; // ვისთან მივიდეს (მიმღები)
+    const subject = "ახალი ჯავშანი საიტზე! 🚗";
+
+    const htmlContent = `
+    <div style="font-family: sans-serif; border: 1px solid #ddd; padding: 20px; border-radius: 10px;">
+        <h2 style="color: #2c3e50;">მოვიდა ახალი შეკვეთა!</h2>
+        <p><strong>მანქანა:</strong> ${car.brand} ${car.model}</p>
+        <p><strong>მომხმარებელი:</strong> ${req.user.fullname}</p>
+        <p><strong>ტელეფონი:</strong> ${phone}</p>
+        <p><strong>ლოკაცია:</strong> ${pickupLocation}</p>
+        <p><strong>პერიოდი:</strong> ${new Date(startDate).toLocaleDateString()} - ${new Date(endDate).toLocaleDateString()}</p>
+        <p><strong>ჯამური ფასი:</strong> ${totalPrice} GEL</p>
+        <hr>
+        <p style="font-size: 12px; color: #777;">გამომგზავნი: NovaRide System (${process.env.BREVO_SENDER})</p>
+    </div>
+`;
+
+    // ვიძახებთ ფუნქციას
+    // პირველი პარამეტრი არის თამუნას იმეილი (email)
+    // მეორე - სათაური (subject)
+    // მესამე - უბრალო ტექსტი (text)
+    // მეოთხე - HTML ვერსია (html)
+    sendEmail(
+        recipientEmail,
+        subject,
+        `ახალი შეკვეთა: ${car.brand} ${car.model}`,
+        htmlContent
+    );
     res.status(201).json({
         status: "success",
         booking: newBooking
@@ -136,6 +166,7 @@ const getMyBookings = catchAsync(async (req, res, next) => {
         bookings
     });
 });
+
 
 // ექსპორტი
 module.exports = {
