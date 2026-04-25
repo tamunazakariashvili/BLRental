@@ -61,10 +61,12 @@ const login = catchAsync(async (req, res, next) => {
     //  მთავარი შემოწმება: თუ მომხმარებელი OAuth-ითაა (მაგ: Google)
     if (user.oauthProvider) {
         return next(new AppError(
-            `You are registered via ${user.oauthProvider}. Please use the corresponding button to sign in`,
+            `You are registered via ${user.oauthProvider}. Please use the Continue with Google button to log in.`,
             400
         ));
     }
+
+
     if (!user.isVerified) {
         return next(new AppError('Please verify your email before logging in', 401));
     }
