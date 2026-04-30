@@ -20,11 +20,12 @@ const addCar = catchAsync(async (req, res, next) => {
     if (carType) carType = carType.trim().toLowerCase();
     // 2. ლოკაციის გასწორება (ტექსტიდან ობიექტში გადაყვანა)
     // თუ ფრონტიდან მოდის უბრალოდ "tbilisi", ჩვენ ის უნდა ჩავსვათ address ველში
-    let formattedLocation = {
-        address: typeof location === 'string' ? location : (location?.address || "Tbilisi"),
-        type: 'Point',
-        coordinates: [44.8271, 41.7151] // საწყისი კოორდინატები
-    };
+    let formattedLocation;
+    if (typeof location === 'string') {
+        formattedLocation = { address: location };
+    } else {
+        formattedLocation = location;
+    }
 
     // 3. Features-ის დაპარსვა
     let parsedFeatures = {};

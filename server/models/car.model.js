@@ -4,15 +4,15 @@ const geocoder = require('../utils/Geocoder');
 const carSchema = mongoose.Schema({
     brand: {
         type: String,
-        required: [true, 'Car brand is required']
+        required: [true, 'Car brand is required'] 
     },
     model: {
         type: String,
-        required: [true, 'Car model is required']
+        required: [true, 'Car model is required'] 
     },
     year: {
         type: Number,
-        required: [true, 'year is required']
+        required: [true, 'year is required'] 
     },
     pricePerDay: {
         type: Number,
@@ -22,7 +22,7 @@ const carSchema = mongoose.Schema({
         type: Date,
         default: Date.now
     },
-    images: [String],
+    images: [String], 
     carType: String,
     engine: String,
     transmission: String,
@@ -37,14 +37,16 @@ const carSchema = mongoose.Schema({
     // ლოკაციის სტრუქტურა
     location: {
         address: { type: String, required: true },
-        type: {
-            type: String,
-            enum: ["Point"],
-            default: "Point"
-        },
         coordinates: {
-            type: [Number], // [longitude, latitude]
-            default: [44.8271, 41.7151] // თბილისის დეფოლტ კოორდინატები
+            type: {
+                type: String,
+                enum: ["Point"],
+                default: "Point"
+            },
+            coordinates: {
+                type: [Number], // [გრძედი, განედი]
+                required: false
+            }
         }
     },
 
@@ -68,18 +70,16 @@ const carSchema = mongoose.Schema({
 });
 
 // ეს ხაზი მნიშვნელოვანია რუკაზე გეო-ძებნისთვის
-carSchema.index({ "location": "2dsphere" });
+carSchema.index({ "location.coordinates": "2dsphere" });
 
 carSchema.pre('save', async function (next) {
-    if (!this.isModified('location.address') || !this.location.address) return next();
+    if (!this.isModified('location.address')) return next();
 
     try {
         const loc = await geocoder.geocode(this.location.address);
 
         if (loc && loc.length > 0) {
-            // სწორი GeoJSON სტრუქტურა
-            this.location = {
-                address: this.location.address,
+            this.location.coordinates = {
                 type: 'Point',
                 coordinates: [loc[0].longitude, loc[0].latitude]
             };
@@ -87,7 +87,6 @@ carSchema.pre('save', async function (next) {
         next();
     } catch (err) {
         console.error("Geocoding error: ", err);
-        // თუ სერვისი გაითიშა, კოორდინატებს ვტოვებთ დეფოლტზე, რომ ბაზამ არ დაეროროს
         next();
     }
 });
