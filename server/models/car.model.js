@@ -43,8 +43,8 @@ const carSchema = mongoose.Schema({
             default: "Point"
         },
         coordinates: {
-            type: [Number], // [გრძედი, განედი]
-            default: [0, 0] // მიეცი საწყისი მნიშვნელობა, რომ ინდექსმა არ დააეროროს
+            type: [Number], // [longitude, latitude]
+            default: [44.8271, 41.7151] // თბილისის დეფოლტ კოორდინატები
         }
     },
 
@@ -70,24 +70,27 @@ const carSchema = mongoose.Schema({
 // ეს ხაზი მნიშვნელოვანია რუკაზე გეო-ძებნისთვის
 carSchema.index({ "location": "2dsphere" });
 
-// carSchema.pre('save', async function (next) {
-//     if (!this.isModified('location.address')) return next();
+carSchema.pre('save', async function (next) {
+    if (!this.isModified('location.address') || !this.location.address) return next();
 
-//     try {
-//         const loc = await geocoder.geocode(this.location.address);
+    try {
+        const loc = await geocoder.geocode(this.location.address);
 
-//         if (loc && loc.length > 0) {
-//             this.location.coordinates = {
-//                 type: 'Point',
-//                 coordinates: [loc[0].longitude, loc[0].latitude]
-//             };
-//         }
-//         next();
-//     } catch (err) {
-//         console.error("Geocoding error: ", err);
-//         next();
-//     }
-// });
+        if (loc && loc.length > 0) {
+            // სწორი GeoJSON სტრუქტურა
+            this.location = {
+                address: this.location.address,
+                type: 'Point',
+                coordinates: [loc[0].longitude, loc[0].latitude]
+            };
+        }
+        next();
+    } catch (err) {
+        console.error("Geocoding error: ", err);
+        // თუ სერვისი გაითიშა, კოორდინატებს ვტოვებთ დეფოლტზე, რომ ბაზამ არ დაეროროს
+        next();
+    }
+});
 
 const Car = mongoose.model('Car', carSchema, 'cars');
 module.exports = Car;
