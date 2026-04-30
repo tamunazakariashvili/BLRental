@@ -72,24 +72,24 @@ const carSchema = mongoose.Schema({
 // ეს ხაზი მნიშვნელოვანია რუკაზე გეო-ძებნისთვის
 carSchema.index({ "location.coordinates": "2dsphere" });
 
-carSchema.pre('save', async function (next) {
-    if (!this.isModified('location.address')) return next();
+// carSchema.pre('save', async function (next) {
+//     if (!this.isModified('location.address')) return next();
 
-    try {
-        const loc = await geocoder.geocode(this.location.address);
+//     try {
+//         const loc = await geocoder.geocode(this.location.address);
 
-        if (loc && loc.length > 0) {
-            this.location.coordinates = {
-                type: 'Point',
-                coordinates: [loc[0].longitude, loc[0].latitude]
-            };
-        }
-        next();
-    } catch (err) {
-        console.error("Geocoding error: ", err);
-        next();
-    }
-});
+//         if (loc && loc.length > 0) {
+//             this.location.coordinates = {
+//                 type: 'Point',
+//                 coordinates: [loc[0].longitude, loc[0].latitude]
+//             };
+//         }
+//         next();
+//     } catch (err) {
+//         console.error("Geocoding error: ", err);
+//         next();
+//     }
+// });
 
 const Car = mongoose.model('Car', carSchema, 'cars');
 module.exports = Car;
