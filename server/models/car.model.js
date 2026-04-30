@@ -4,15 +4,15 @@ const geocoder = require('../utils/Geocoder');
 const carSchema = mongoose.Schema({
     brand: {
         type: String,
-        required: [true, 'Car brand is required'] 
+        required: [true, 'Car brand is required']
     },
     model: {
         type: String,
-        required: [true, 'Car model is required'] 
+        required: [true, 'Car model is required']
     },
     year: {
         type: Number,
-        required: [true, 'year is required'] 
+        required: [true, 'year is required']
     },
     pricePerDay: {
         type: Number,
@@ -22,7 +22,7 @@ const carSchema = mongoose.Schema({
         type: Date,
         default: Date.now
     },
-    images: [String], 
+    images: [String],
     carType: String,
     engine: String,
     transmission: String,
@@ -37,16 +37,14 @@ const carSchema = mongoose.Schema({
     // ლოკაციის სტრუქტურა
     location: {
         address: { type: String, required: true },
+        type: {
+            type: String,
+            enum: ["Point"],
+            default: "Point"
+        },
         coordinates: {
-            type: {
-                type: String,
-                enum: ["Point"],
-                default: "Point"
-            },
-            coordinates: {
-                type: [Number], // [გრძედი, განედი]
-                required: false
-            }
+            type: [Number], // [გრძედი, განედი]
+            default: [0, 0] // მიეცი საწყისი მნიშვნელობა, რომ ინდექსმა არ დააეროროს
         }
     },
 
@@ -70,7 +68,7 @@ const carSchema = mongoose.Schema({
 });
 
 // ეს ხაზი მნიშვნელოვანია რუკაზე გეო-ძებნისთვის
-carSchema.index({ "location.coordinates": "2dsphere" });
+carSchema.index({ "location": "2dsphere" });
 
 // carSchema.pre('save', async function (next) {
 //     if (!this.isModified('location.address')) return next();
